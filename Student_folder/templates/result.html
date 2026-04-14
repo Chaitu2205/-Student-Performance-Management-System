@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Result</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #0f2027, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+        }
+
+        .result-card {
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0,0,0,0.4);
+            width: 420px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .data {
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            text-decoration: none;
+            color: white;
+        }
+
+        a:hover {
+            box-shadow: 0 0 10px #00f2fe;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="result-card">
+    <h2>📊 Student Result</h2>
+
+    {% if student %}
+        <div class="data">Roll No: {{ student[0] }}</div>
+        <div class="data">Name: {{ student[1] }}</div>
+
+        <div class="data">📘 Maths: {{ student[2] }}</div>
+        <div class="data">📗 Physics: {{ student[3] }}</div>
+        <div class="data">📙 Chemistry: {{ student[4] }}</div>
+
+        <div class="data">Total: {{ student[5] }}</div>
+        <div class="data">Percentage: {{ student[6] }}</div>
+        <div class="data">Grade: {{ student[7] }}</div>
+
+        <!-- Chart -->
+        <canvas id="marksChart"></canvas>
+
+        <script>
+            let maths = {{ student[2] | default(0) }};
+            let physics = {{ student[3] | default(0) }};
+            let chemistry = {{ student[4] | default(0) }};
+
+            const ctx = document.getElementById('marksChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Maths', 'Physics', 'Chemistry'],
+                    datasets: [{
+                        label: 'Marks',
+                        data: [maths, physics, chemistry],
+                        backgroundColor: [
+                            '#00f2fe',
+                            '#4facfe',
+                            '#43e97b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: "white" }
+                        },
+                        x: {
+                            ticks: { color: "white" }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "white"
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+
+    {% else %}
+        <p>No record found</p>
+    {% endif %}
+
+    <a href="/">⬅ Back</a>
+</div>
+
+</body>
+</html>
