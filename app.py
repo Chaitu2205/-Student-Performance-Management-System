@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import mysql.connector
+import os
 
 app = Flask(__name__)
 
@@ -8,10 +9,10 @@ db = mysql.connector.connect(
     host="gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com",
     port=4000,
     user="2nJAXNQ1TnPyjUo.root",
-    password="xY6WHW3ttSksFjsx",      
+    password=os.environ.get("DB_PASSWORD"),
     database="student_db",
     ssl_verify_cert=True,
-    ssl_ca="isrgrootx1.pem" 
+    ssl_ca="isrgrootx1.pem"
 )
 
 cursor = db.cursor()
@@ -19,27 +20,29 @@ cursor = db.cursor()
 # 🎯 Function to calculate grade
 def calculate_grade(percentage):
     if percentage >= 90:
-        return 'A'
+        return "A"
     elif percentage >= 75:
-        return 'B'
+        return "B"
     elif percentage >= 50:
-        return 'C'
+        return "C"
     else:
-        return 'F'
+        return "F"
+
 
 # 🏠 Home Page
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
+
 
 # ➕ Add Student
-@app.route('/add', methods=['POST'])
+@app.route("/add", methods=["POST"])
 def add():
-    roll = request.form['roll']
-    name = request.form['name']
-    m1 = int(request.form['m1'])
-    m2 = int(request.form['m2'])
-    m3 = int(request.form['m3'])
+    roll = request.form["roll"]
+    name = request.form["name"]
+    m1 = int(request.form["m1"])
+    m2 = int(request.form["m2"])
+    m3 = int(request.form["m3"])
 
     total = m1 + m2 + m3
     percentage = total / 3
@@ -58,16 +61,23 @@ def add():
 
     return "✅ Student Added Successfully!"
 
+
 # 🔍 Search Student
-@app.route('/search', methods=['POST'])
+@app.route("/search", methods=["POST"])
 def search():
-    roll = request.form['roll']
+    roll = request.form["roll"]
 
     query = "SELECT * FROM students WHERE roll_no=%s"
     cursor.execute(query, (roll,))
     data = cursor.fetchone()
 
-    return render_template('result.html', student=data)
+    return render_template("result.html", student=data)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+# ▶️ Run App
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=False
+    )
